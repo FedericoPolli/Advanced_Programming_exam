@@ -1,5 +1,5 @@
-#ifndef __node_hpp__
-#define __node_hpp__
+#ifndef __node_cpp__
+#define __node_cpp__
 
 #include <memory>
 #include <utility>
