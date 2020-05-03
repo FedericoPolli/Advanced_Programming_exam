@@ -1,8 +1,8 @@
 #ifndef __node_cpp__
 #define __node_cpp__
 
-#include <memory>
-#include <utility>
+#include <memory>    //std::unique_ptr
+#include <utility>   //std::move
 
 template <typename T>
 struct Node{
@@ -30,7 +30,7 @@ struct Node{
   Node(Node&& n) noexcept = default;    //move ctor
   Node& operator=(Node&& n) noexcept = default;  //move assignment
 
-  Node(const Node& n) : value{n.value} {}
+  Node(const Node& n) : value{n.value} {} //copy ctor
   Node& operator=(const Node& n) {
     (*this) = std::move(n);
     return *this;
@@ -41,11 +41,3 @@ struct Node{
 
 
 #endif
-
-int main() {
-  using coppia=std::pair<int, int>;
-  Node<coppia> n{};
-  Node<coppia> m{coppia(1,2)};
-  n=m;
-  return 0;
-}
