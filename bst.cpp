@@ -227,7 +227,6 @@ public:
     if (result.get_ptr() != nullptr)
       return std::make_pair(result, false);
     
-    node_type node{x};
     node_type* node_ptr{new node_type{x}};
 
     // if tree is empty initialize node as root
@@ -239,13 +238,17 @@ public:
     iterator it{root.get()};
     while (!it.is_leaf()) {
       if (op(x.first, it->first) && it.has_left_child())  //if key is less than current move left
-	it.move_left();            
+	it.move_left();
       else if (op(it->first, x.first) && it.has_right_child())  //else move right
 	it.move_right();
       else
 	break;
     }
-    node.parent = it.get_ptr();
+    if (it.get_ptr()==nullptr)
+      std::cout << "nullptr??";
+    else
+      std::cout << "boh";
+    node_ptr->parent = it.get_ptr();    //current doesn't know parent?
     if (op(x.first, it->first))
       it.get_ptr()->left.reset(node_ptr);
     else
@@ -367,7 +370,7 @@ public:
     std::cout << "(key, value)\n";
     while (it != x.end()) {
       os << "(" << it->first << "," << it->second << ") ";
-      it++;
+      ++it;
     }
     std::cout << std::endl;
     return os;
@@ -388,9 +391,23 @@ int main() {
   tree b{};
   couple c1(3,3);
   b.insert({2,2});
-  b.insert({4,1});
-  b.insert(c1);
   std::cout << b;
+  b.insert({4,1});
+  b.insert({3,3});
+  b.insert({4,3});
+  b.insert({1,3});
+  b.insert({10,3});
+  b.insert({7,3});
+  b.insert({5,3});
+  b.insert({88,3});
+  b.insert({6,3});
+  b.insert({0,3});
+  b.insert({67,3});
+  b.insert({12,3});
+  b.insert({23,3});
+  b.insert({45,3});
+  b.insert({44,3});
+    std::cout << b;
   b.find(3);
 }
   
