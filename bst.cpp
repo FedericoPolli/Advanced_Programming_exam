@@ -3,6 +3,7 @@
 
 #include <memory>    //std::unique_ptr
 #include <utility>   //std::move
+#include <iostream>
 
 template <typename T>
 struct Node{
@@ -36,6 +37,8 @@ struct Node{
     (*this) = std::move(n);
     return *this;
   }
+
+  
 };
 
 
@@ -182,6 +185,7 @@ public:
 #include <memory>
 #include <iterator>
 #include <iostream>
+#include <vector>
 
 template <typename k, typename v, typename cmp = std::less<k>>
 class bst {
@@ -200,6 +204,7 @@ public:
   bst() noexcept = default; //default constructor
   explicit bst(k key, v value) : root{std::make_unique<node_type>(pair_type(key, value))} {}    //custom ctor 1
   explicit bst(k key, v value, cmp x) : root{std::make_unique<node_type>(pair_type(key, value))}, op{x} {}   //custom ctor 2
+  explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1); }
   ~bst() noexcept = default; // default dtor
 
   //copy ctor
@@ -235,6 +240,7 @@ public:
       iterator it{root.get()};
       return std::make_pair(it, true);
     }
+    
     iterator it{root.get()};
     while (!it.is_leaf()) {
       if (op(x.first, it->first) && it.has_left_child())  //if key is less than current move left
@@ -244,11 +250,8 @@ public:
       else
 	break;
     }
-    if (it.get_ptr()==nullptr)
-      std::cout << "nullptr??";
-    else
-      std::cout << "boh";
-    node_ptr->parent = it.get_ptr();    //current doesn't know parent?
+    
+    node_ptr->parent = it.get_ptr();  
     if (op(x.first, it->first))
       it.get_ptr()->left.reset(node_ptr);
     else
@@ -257,40 +260,46 @@ public:
   }
 
   
-  // std::pair<iterator, bool> insert(pair_type&& x) {
-  //   auto result=find(x.first);
-  //   if (result.get_ptr() != nullptr)
-  //     return std::make_pair(result, false);
-    
-  //   node_type node{std::move(x)};
-  //   node_type* node_ptr{&node};			
-  //   if (root == nullptr) {
-  //     root.reset(node_ptr);
-  //     iterator it{root.get()};
-  //     return std::make_pair(it, true);
-  //   }
+  std::pair<iterator, bool> insert(pair_type&& x) {
 
-  //   iterator it{root.get()};
-  //   while (!it.is_leaf()) {
-  //     if (op(x.first, it->first))  //if key is less than current move left
-  // 	it.move_left();             //else move right
-  //     else
-  // 	it.move_right();
-  //   }
-  //   node.parent = it.get_ptr();
-  //   if (op(x.first, it->first))
-  //     it.get_ptr()->left.reset(node_ptr);
-  //   else
-  //     it.get_ptr()->right.reset(node_ptr);
-  //   return std::make_pair(it, true);
-  // }
+    //if node is already in tree return
+    auto result=find(x.first);
+    if (result != end())
+      return std::make_pair(result, false);
+    
+    node_type* node_ptr{new node_type{std::move(x)}};
+
+    // if tree is empty initialize node as root
+    if (root == nullptr) {
+      root.reset(node_ptr);
+      iterator it{root.get()};
+      return std::make_pair(it, true);
+    }
+    
+    iterator it{root.get()};
+    while (!it.is_leaf()) {
+      if (op(x.first, it->first) && it.has_left_child())  //if key is less than current move left
+	it.move_left();
+      else if (op(it->first, x.first) && it.has_right_child())  //else move right
+	it.move_right();
+      else
+	break;
+    }
+    
+    node_ptr->parent = it.get_ptr(); 
+    if (op(x.first, it->first))
+      it.get_ptr()->left.reset(node_ptr);
+    else
+      it.get_ptr()->right.reset(node_ptr);
+    return std::make_pair(it, true);
+  }
 
 
   template< class... Types >
   std::pair<iterator,bool> emplace(Types&&... args);
 
 
-  void clear();
+  void clear() { root.reset(nullptr); }
 
   
   //go left starting from root
@@ -357,11 +366,62 @@ public:
   }
 
 
-  void balance();
+  void balance() {
+    //if tree is empty return
+    if (root == nullptr)
+      return;
+    
+    iterator it=begin();
+    std::vector<pair_type> vec;
 
+    //fill vector with tree elements
+    while (it != end()) {
+      vec.push_back(std::make_pair(it->first, it->second));
+      it++;
+    }
+
+    //clear and then build from vector
+    clear();
+    build_from_vector(vec, 0, vec.size()-1);
+  }
+
+
+  void build_from_vector(const std::vector<pair_type> vec, std::size_t start, std::size_t end) {
+    if (start > end)
+      return;
+    
+    std::size_t t{(start+end)/2};
+    insert(vec[t]);
+    if (start != end) {
+      if (t !=  0)
+	build_from_vector(vec, start, t-1);
+      build_from_vector(vec, t+1, end);
+    }
+  }
   
-  v& operator[](const k& x);
-  v& operator[](k&& x);
+  
+  v& operator[](const k& x) {
+    auto it = find(x);
+    if ( it == end() ) {
+      pair_type p=std::make_pair(x, v{});
+      auto i = insert(p);
+      return i.first->second;
+    }
+    else
+      return it->second; 
+  }
+
+    
+  v& operator[](k&& x) {
+    auto it = find(x);
+    if ( it == end() ) {
+      pair_type p=std::make_pair(std::move(x), v{});
+      auto i = insert(p);
+      return i.first->second;
+    }
+    else
+      return it->second; 
+  }
 
 
   friend
@@ -377,7 +437,13 @@ public:
   }
 
   
-  void erase(const k& x);
+  // void erase(const k& x) {
+  //   //if no key do nothing
+  //   if (find(k)==end())
+  //     return;
+  //   //to be completed   
+  // }
+
   
 };
 
@@ -389,9 +455,7 @@ int main() {
   using couple = std::pair<const int, int>;
   using tree = bst<int, int>;
   tree b{};
-  couple c1(3,3);
   b.insert({2,2});
-  std::cout << b;
   b.insert({4,1});
   b.insert({3,3});
   b.insert({4,3});
@@ -407,7 +471,14 @@ int main() {
   b.insert({23,3});
   b.insert({45,3});
   b.insert({44,3});
-    std::cout << b;
+  std::cout << b;
+  b.balance();
+  std::cout << b;
+  std::vector<couple> v{ {1,2}, {3,4}, {3,2}, {2,7}, {5,5} };
+  tree c{v};
+  std::cout << c;
   b.find(3);
+  b[234]=6;
+  std::cout << b;
 }
   
