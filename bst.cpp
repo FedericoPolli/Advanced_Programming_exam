@@ -207,6 +207,7 @@ public:
   explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1); }
   ~bst() noexcept = default; // default dtor
 
+  
   //copy ctor
   // bst(const bst& b) : root{std::make_unique<node_type>(b.root)} {}
   // bst& operator=(const bst& b) {
@@ -215,6 +216,7 @@ public:
   //   *this=std::move(tmp);
   //   return *this;
   // }
+
   
   //move ctor
   // bst(bst&& b) noexcept = default;
@@ -222,6 +224,7 @@ public:
   //   root = std::move(b.root);
   //   return *this;
   // }
+
   
   //functions definition
   
@@ -256,7 +259,7 @@ public:
       it.get_ptr()->left.reset(node_ptr);
     else
       it.get_ptr()->right.reset(node_ptr);
-    return std::make_pair(it, true);
+    return std::make_pair(iterator{node_ptr}, true);
   }
 
   
@@ -291,7 +294,7 @@ public:
       it.get_ptr()->left.reset(node_ptr);
     else
       it.get_ptr()->right.reset(node_ptr);
-    return std::make_pair(it, true);
+    return std::make_pair(iterator{node_ptr}, true);
   }
 
 
@@ -403,24 +406,22 @@ public:
   v& operator[](const k& x) {
     auto it = find(x);
     if ( it == end() ) {
-      pair_type p=std::make_pair(x, v{});
-      auto i = insert(p);
-      return i.first->second;
+      auto p = insert(std::make_pair(x, v{}));
+      return (*p.first).second;
     }
     else
-      return it->second; 
+      return (*it).second; 
   }
 
     
   v& operator[](k&& x) {
     auto it = find(x);
     if ( it == end() ) {
-      pair_type p=std::make_pair(std::move(x), v{});
-      auto i = insert(p);
-      return i.first->second;
+      auto p = insert(std::make_pair(std::move(x), v{}));
+      return (*p.first).second;
     }
     else
-      return it->second; 
+      return (*it).second; 
   }
 
 
@@ -479,6 +480,7 @@ int main() {
   std::cout << c;
   b.find(3);
   b[234]=6;
+  //b[234]=6;
   std::cout << b;
 }
   
