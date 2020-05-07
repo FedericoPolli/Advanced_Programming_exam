@@ -3,6 +3,7 @@
 
 #include <memory>    //std::unique_ptr
 #include <utility>   //std::move
+#include <iostream>
 
 template <typename T>
 struct Node{
@@ -11,30 +12,26 @@ struct Node{
   std::unique_ptr<Node> right=nullptr;
   Node* parent=nullptr;
 
+  
   //constructors
-  Node() noexcept {};
-  explicit Node(const T& v) : value{v} {}
-  explicit Node(T&& v) : value{std::move(v)} {}
-  explicit Node(const std::unique_ptr<Node>& p) : value{p->value}
-  {
-    this->parent=p->parent;
-    if (p->left)
-      left=std::make_unique<Node>(p->left, this);
-    if (p->right)
-      right=std::make_unique<Node>(p->right, this);
-  }
+  Node() noexcept = default;
+  Node(const T& v, Node* p=nullptr) : value{v}, parent{p} {}
+  Node(T&& v, Node* p=nullptr) : value{std::move(v)}, parent{p} {}
+
 
   //destructor
   ~Node() noexcept = default;
 
-  Node(Node&& n) noexcept = default;    //move ctor
-  Node& operator=(Node&& n) noexcept = default;  //move assignment
-
-  Node(const Node& n) : value{n.value} {} //copy ctor
-  Node& operator=(const Node& n) {
-    (*this) = std::move(n);
-    return *this;
+  //copy constructor
+  Node(const Node& n, Node* p = nullptr) : value{n.value}, parent{p}
+  {
+    if (n.left)
+      left=std::make_unique<Node>(*n.left, this);
+    if (n.right)
+      right=std::make_unique<Node>(*n.right, this);
   }
+
+  
 };
 
 

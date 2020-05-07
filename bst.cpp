@@ -12,30 +12,23 @@ struct Node{
   std::unique_ptr<Node> right=nullptr;
   Node* parent=nullptr;
 
+  
   //constructors
   Node() noexcept = default;
-  explicit Node(const T& v) : value{v} {}
-  explicit Node(T&& v) : value{std::move(v)} {}
-  explicit Node(const T& v, const Node* p) : value{v}, parent{p} {}
-  explicit Node(const std::unique_ptr<Node>& p) : value{p->value}
-  {
-    this->parent=p->parent;
-    if (p->left)
-      left=std::make_unique<Node>(p->left, this);
-    if (p->right)
-      right=std::make_unique<Node>(p->right, this);
-  }
+  Node(const T& v, Node* p=nullptr) : value{v}, parent{p} {}
+  Node(T&& v, Node* p=nullptr) : value{std::move(v)}, parent{p} {}
+
 
   //destructor
   ~Node() noexcept = default;
 
-  Node(Node&& n) noexcept = default;    //move ctor
-  Node& operator=(Node&& n) noexcept = default;  //move assignment
-
-  Node(const Node& n) : value{n.value} {} //copy ctor
-  Node& operator=(const Node& n) {
-    (*this) = std::move(n);
-    return *this;
+  //copy constructor
+  Node(const Node& n, Node* p = nullptr) : value{n.value}, parent{p}
+  {
+    if (n.left)
+      left=std::make_unique<Node>(*n.left, this);
+    if (n.right)
+      right=std::make_unique<Node>(*n.right, this);
   }
 
   
@@ -208,22 +201,27 @@ public:
   ~bst() noexcept = default; // default dtor
 
   
-  //copy ctor
-  // bst(const bst& b) : root{std::make_unique<node_type>(b.root)} {}
-  // bst& operator=(const bst& b) {
-  //   root.reset();
-  //   auto tmp = b;
-  //   *this=std::move(tmp);
-  //   return *this;
-  // }
+  //  copy ctor
+  bst(const bst& b) : op{b.op} {root = std::make_unique<node_type>(*b.root);}
+
+  // copy assignment
+  bst& operator=(const bst& b) {
+    root.reset();
+    op=b.op;
+    root=std::make_unique<node_type>(*b.root);
+    return *this;
+  }
 
   
   //move ctor
-  // bst(bst&& b) noexcept = default;
-  // bst& operator=(bst&& b) noexcept {
-  //   root = std::move(b.root);
-  //   return *this;
-  // }
+  bst(bst&& b) noexcept : op{std::move(b.op)}, root{b.root.release()} {}
+
+  //move assignment
+  bst& operator=(bst&& b) noexcept {
+    op = std::move(b.op);
+    root.reset(b.root.release());
+    return *this;
+  }
 
   
   //functions definition
@@ -299,7 +297,9 @@ public:
 
 
   template< class... Types >
-  std::pair<iterator,bool> emplace(Types&&... args);
+  std::pair<iterator,bool> emplace(Types&&... args) {
+    return insert(pair_type{std::forward<Types>(args)...});
+  }
 
 
   void clear() { root.reset(nullptr); }
@@ -472,15 +472,11 @@ int main() {
   b.insert({23,3});
   b.insert({45,3});
   b.insert({44,3});
-  std::cout << b;
   b.balance();
-  std::cout << b;
-  std::vector<couple> v{ {1,2}, {3,4}, {3,2}, {2,7}, {5,5} };
-  tree c{v};
-  std::cout << c;
-  b.find(3);
   b[234]=6;
-  //b[234]=6;
+  b.emplace(8,3);
+  b.emplace(8,2);
   std::cout << b;
+
 }
   

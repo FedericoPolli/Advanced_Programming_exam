@@ -7,7 +7,7 @@
 template <typename node, typename T>
 class _iterator{
   
-  node* current=nullptr;
+  node* current = nullptr;
   
 public:
   
@@ -95,6 +95,8 @@ public:
 
   bool is_leaf() { return !( ((*this).has_left_child()) || ((*this).has_right_child()) ); }
 
+
+  node* get_ptr() noexcept {return current;}
   
 };
 #endif
