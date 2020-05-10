@@ -3,6 +3,7 @@
 
 #include <memory>     //unique_ptr::get
 #include <iterator>
+#include <utility>
 
 template <typename node, typename T>
 class _iterator{
@@ -97,6 +98,29 @@ public:
 
 
   node* get_ptr() noexcept {return current;}
+
+
+  bool is_left_child () {
+    _iterator it = *this;
+    it.move_up();
+    it.move_left();
+    if (it == *this)
+      return true;
+    else
+      return false;
+  }
+
+  bool is_right_child () {
+    _iterator it = *this;
+    it.move_up();
+    it.move_right();
+    if (it == *this)
+      return true;
+    else
+      return false;
+  }
+
+
   
 };
 #endif

@@ -1,9 +1,8 @@
-#ifndef __node_cpp__
-#define __node_cpp__
+#ifndef __node_hpp__
+#define __node_hpp__
 
 #include <memory>    //std::unique_ptr
 #include <utility>   //std::move
-#include <iostream>
 
 template <typename T>
 struct Node{

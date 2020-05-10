@@ -1,184 +1,12 @@
-#ifndef __node_cpp__
-#define __node_cpp__
+#ifndef __bst_hpp__
+#define __bst_hpp__
 
-#include <memory>    //std::unique_ptr
-#include <utility>   //std::move
-#include <iostream>
-
-template <typename T>
-struct Node{
-  T value;
-  std::unique_ptr<Node> left=nullptr;
-  std::unique_ptr<Node> right=nullptr;
-  Node* parent=nullptr;
-
-  
-  //constructors
-  Node() noexcept = default;
-  Node(const T& v, Node* p=nullptr) : value{v}, parent{p} {}
-  Node(T&& v, Node* p=nullptr) : value{std::move(v)}, parent{p} {}
-
-
-  //destructor
-  ~Node() noexcept = default;
-
-  //copy constructor
-  Node(const Node& n, Node* p = nullptr) : value{n.value}, parent{p}
-  {
-    if (n.left)
-      left=std::make_unique<Node>(*n.left, this);
-    if (n.right)
-      right=std::make_unique<Node>(*n.right, this);
-  }
-
-  
-};
-
-
-
-
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifndef __iterator_hpp__
-#define __iterator_hpp__
-
-#include <memory>     //unique_ptr::get
-#include <iterator>
-
-template <typename node, typename T>
-class _iterator{
-  
-  node* current = nullptr;
-  
-public:
-  
-  using value_type = T;
-  using reference = value_type&;
-  using pointer = value_type*;
-  using iterator_category = std::forward_iterator_tag;
-  using difference_type = std::ptrdiff_t;
-  
-  //ctor
-  _iterator() noexcept : current{nullptr} {}
-  explicit _iterator(node* p) noexcept : current{p} {}
-
-  //dtor
-  ~_iterator() noexcept = default;
-
-  reference operator*() const noexcept {return current->value;}
-  pointer operator->() const noexcept {return &(*(*this));}
-  bool operator==(const _iterator& rhs) const {return current==rhs.current;}
-  bool operator!=(const _iterator& rhs) const {return current!=rhs.current;}
-
-  //prefix increment
-  _iterator& operator++() noexcept {
-    
-    if (current == nullptr) return *this;
-
-    //if have right child, move right
-    //and then left for as long as possible
-    if (current->right != nullptr) {
-      (*this).move_right();
-      while(current->left != nullptr) {
-	(*this).move_left();
-      }
-      return *this;
-    }    
-    else {
-      
-      //if there is a parent move up until key is greater
-      if (current->parent != nullptr) {
-	while (current->value.first > current->parent->value.first) {
-	  (*this).move_up();
-
-	  //if top node exit
-	  if (current->parent == nullptr) {
-	    current = nullptr;
-	    return *this;
-	  }	    
-	}	
-	(*this).move_up();
-	return *this;
-      }
-      
-      else {
-	//we are in the top node, exit
-	current=nullptr;
-	return *this;
-      }
-
-    } 
-  }
-
-  
-  //postfix increment
-  _iterator operator++(int) noexcept {
-    _iterator tmp{current};
-    ++(*this);
-    return tmp;
-  }
-
-  void move_up() noexcept { current = current->parent; }
-  void move_left() noexcept { current = current->left.get(); }
-  void move_right() noexcept { current = current->right.get(); }
-
-  bool has_left_child() {
-    if (current != nullptr && current->left.get() != nullptr)
-      return true;
-    return false;
-  }
-
-  bool has_right_child() {
-    if (current != nullptr && current->right.get() != nullptr)
-      return true;
-    return false;
-  }
-
-  bool is_leaf() { return !( ((*this).has_left_child()) || ((*this).has_right_child()) ); }
-
-
-  node* get_ptr() noexcept {return current;}
-  
-};
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifndef __bst
-#define __bst
-
-#include <memory>
-#include <iterator>
+//#include <memory>
+//#include <iterator>
 #include <iostream>
 #include <vector>
+#include "node.hpp"
+#include "iterator.hpp"
 
 template <typename k, typename v, typename cmp = std::less<k>>
 class bst {
@@ -438,45 +266,47 @@ public:
   }
 
   
-  // void erase(const k& x) {
-  //   //if no key do nothing
-  //   if (find(k)==end())
-  //     return;
-  //   //to be completed   
-  // }
+  void erase(const k& x) {
+    auto res = find(x);
+    //if no key do nothing
+    if (res == end())
+      return;
 
+    node_type* node_ptr = res.get_ptr();
+
+    if (res.is_leaf() && node_ptr == root.get()) {
+      root.reset();
+      return;
+    }
+    
+    //if node is leaf simply delete it
+    if (res.is_leaf() && node_ptr != root.get() ) {
+      if (res.is_left_child()) 
+	(*node_ptr).parent->left.reset();	
+      else
+	(*node_ptr).parent->right.reset();
+      node_ptr = nullptr;
+      return;
+    }
+
+    //else vectorize without the pair associated with key, clear and then rebuild
+    else {
+      iterator it=begin();
+      std::vector<pair_type> vec;
+
+      //fill vector with tree elements
+      while (it != end()) {
+	if (it != res)
+	  vec.push_back(std::make_pair(it->first, it->second));
+	it++;
+      }
+      clear();
+      build_from_vector(vec, 0, vec.size()-1);
+    }   
+  }
   
 };
 
 
 
 #endif
-
-int main() {
-  using couple = std::pair<const int, int>;
-  using tree = bst<int, int>;
-  tree b{};
-  b.insert({2,2});
-  b.insert({4,1});
-  b.insert({3,3});
-  b.insert({4,3});
-  b.insert({1,3});
-  b.insert({10,3});
-  b.insert({7,3});
-  b.insert({5,3});
-  b.insert({88,3});
-  b.insert({6,3});
-  b.insert({0,3});
-  b.insert({67,3});
-  b.insert({12,3});
-  b.insert({23,3});
-  b.insert({45,3});
-  b.insert({44,3});
-  b.balance();
-  b[234]=6;
-  b.emplace(8,3);
-  b.emplace(8,2);
-  std::cout << b;
-
-}
-  
