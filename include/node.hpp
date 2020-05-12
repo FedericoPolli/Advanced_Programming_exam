@@ -4,6 +4,7 @@
 #include <memory>    //std::unique_ptr
 #include <utility>   //std::move
 
+
 template <typename T>
 struct Node{
   T value;

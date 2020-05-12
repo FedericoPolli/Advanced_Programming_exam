@@ -3,7 +3,6 @@
 
 #include <memory>     //unique_ptr::get
 #include <iterator>
-#include <utility>
 
 template <typename node, typename T>
 class _iterator{
@@ -30,40 +29,51 @@ public:
   bool operator==(const _iterator& rhs) const {return current==rhs.current;}
   bool operator!=(const _iterator& rhs) const {return current!=rhs.current;}
 
-  //prefix increment
+  
+  /*
+    prefix increment: 3 cases.
+    1) If node has a right child, move right and then left for as long as possible.
+    2) If node has parent, compare current key with parent key, and if current key is greater, move up. 
+       Repeat until parent key is greater, then move up once more and return.
+  2.5) The only time the loop doesn't stop is when we start in the rightmost node,
+       in which case, we have already traversed the whole tree .
+    3) If node is root and there are no right children we have traversed the whole tree
+  */
+
   _iterator& operator++() noexcept {
     
     if (current == nullptr) return *this;
 
-    //if have right child, move right
-    //and then left for as long as possible
+    // Case 1
     if (current->right != nullptr) {
       (*this).move_right();
       while(current->left != nullptr) {
 	(*this).move_left();
       }
       return *this;
-    }    
+    }
+    
     else {
-      
-      //if there is a parent move up until key is greater
+
+      // Case 2
       if (current->parent != nullptr) {
 	while (current->value.first > current->parent->value.first) {
 	  (*this).move_up();
 
-	  //if top node exit
+	  // Case 2.5
 	  if (current->parent == nullptr) {
 	    current = nullptr;
 	    return *this;
 	  }	    
-	}	
+	}
+	
 	(*this).move_up();
 	return *this;
       }
-      
+
+      // Case 3
       else {
-	//we are in the top node, exit
-	current=nullptr;
+	current = nullptr;
 	return *this;
       }
 
@@ -78,28 +88,34 @@ public:
     return tmp;
   }
 
+  
   void move_up() noexcept { current = current->parent; }
   void move_left() noexcept { current = current->left.get(); }
   void move_right() noexcept { current = current->right.get(); }
 
+  
   bool has_left_child() {
     if (current != nullptr && current->left.get() != nullptr)
       return true;
     return false;
   }
 
+  
   bool has_right_child() {
     if (current != nullptr && current->right.get() != nullptr)
       return true;
     return false;
   }
 
-  bool is_leaf() { return !( ((*this).has_left_child()) || ((*this).has_right_child()) ); }
-
 
   node* get_ptr() noexcept {return current;}
 
+  
+  bool is_leaf() { return !( ((*this).has_left_child()) || ((*this).has_right_child()) ); }
 
+
+  //These functions check whether the current node is respectively a left or right child of another node
+  
   bool is_left_child () {
     _iterator it = *this;
     it.move_up();
@@ -110,6 +126,7 @@ public:
       return false;
   }
 
+  
   bool is_right_child () {
     _iterator it = *this;
     it.move_up();
@@ -119,8 +136,6 @@ public:
     else
       return false;
   }
-
-
   
 };
 #endif
