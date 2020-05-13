@@ -4,10 +4,11 @@
 #include <memory>     //unique_ptr::get
 #include <iterator>
 
-template <typename node, typename T>
+template <typename node, typename T, typename cmp>
 class _iterator{
   
   node* current = nullptr;
+  cmp op;
   
 public:
   
@@ -57,7 +58,7 @@ public:
 
       // Case 2
       if (current->parent != nullptr) {
-	while (current->value.first > current->parent->value.first) {
+	while (op(current->parent->value.first, current->value.first)) {
 	  (*this).move_up();
 
 	  // Case 2.5

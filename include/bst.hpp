@@ -4,6 +4,7 @@
 #include <memory>    // included for clarity, as they are
 #include <iterator>  // already included in iterator.hpp
 
+#include <algorithm>  //std::sort
 #include <iostream>
 #include <vector>
 #include "node.hpp"
@@ -14,8 +15,8 @@ class bst {
   
   using pair_type=std::pair<const k, v>;
   using node_type=Node<pair_type>;
-  using iterator=_iterator<node_type, pair_type>;
-  using const_iterator=_iterator<node_type, const pair_type>;
+  using iterator=_iterator<node_type, pair_type, cmp>;
+  using const_iterator=_iterator<node_type, const pair_type, cmp>;
 
   //variables
   cmp op;
@@ -30,12 +31,12 @@ public:
   explicit bst(k key, v value, cmp x) : root{std::make_unique<node_type>(pair_type(key, value))}, op{x} {}   
 
   //custom constructor that builds a tree from a vector of pairs
-  explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1); }
+  explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1);
+  }
   
   ~bst() noexcept = default; // default dtor
 
-  // copy ctor: performs a deep copy through copy ctor of Node
-  
+  // copy ctor: performs a deep copy through copy ctor of Node  
   bst(const bst& b) : op{b.op} {root = std::make_unique<node_type>(*b.root);}
 
   // copy assignment
@@ -73,16 +74,12 @@ public:
   void clear() { root.reset(nullptr); }
 
 
-  /*
-    These functions return an iterator to the leftmost node.
-    Starting from the root node they go left for as long as possible.
-  */
-
   iterator begin() {
     if (root == nullptr)
       return iterator{nullptr};
+    
     iterator it{root.get()};
-    while (it.has_left_child())
+    while (it.has_left_child())   //go left for as long as possible
       it.move_left();
     return it;
   }
@@ -91,7 +88,8 @@ public:
   const_iterator begin() const {
     if (root == nullptr)
       return const_iterator{nullptr};
-    const_iterator it{root.get()};
+    
+    const_iterator it{root.get()};   //go left for as long as possible
     while (it.has_left_child())
       it.move_left();
     return it;
@@ -101,7 +99,8 @@ public:
   const_iterator cbegin() const {
     if (root == nullptr)
       return const_iterator{nullptr};
-    const_iterator it{root.get()};
+    
+    const_iterator it{root.get()};   //go left for as long as possible
     while (it.has_left_child())
       it.move_left();
     return it;
@@ -122,12 +121,12 @@ public:
   
   void build_from_vector(const std::vector<pair_type> vec, std::size_t start, std::size_t end);
 
-  
+
   v& operator[](const k& x) {
     auto it = find(x);
     if ( it == end() ) {
-      auto p = insert(std::make_pair(x, v{}));
-      return (*p.first).second;
+      auto p = insert(std::make_pair(x, v{}));  //if key is not found, perform an 
+      return (*p.first).second;                 //insertion with default value
     }
     else
       return (*it).second; 
@@ -137,8 +136,8 @@ public:
   v& operator[](k&& x) {
     auto it = find(x);
     if ( it == end() ) {
-      auto p = insert(std::make_pair(std::move(x), v{}));
-      return (*p.first).second;
+      auto p = insert(std::make_pair(std::move(x), v{})); //if key is not found, perform 
+      return (*p.first).second;                          //an insertion with default value
     }
     else
       return (*it).second; 
@@ -148,16 +147,37 @@ public:
   void erase(const k& x);
   
 
+  const_iterator get_root() const noexcept { return const_iterator{root.get()}; }
+
+    
   friend
   std::ostream& operator<<(std::ostream& os, const bst& x) {
     const_iterator it = x.begin();
-    std::cout << "(key, value)\n";
+    const_iterator r = x.get_root();
+    if (r.get_ptr() != nullptr)
+      os << "Root node: (" << r->first << ", " << r->second << "), number of nodes: " << x.count_nodes() << "\n";
+    else {
+      os << "Empty tree: nothing to return\n";
+      return os;
+    }
+    std::cout << "Whole tree: ";
     while (it != x.end()) {
       os << "(" << it->first << ", " << it->second << ") ";
       ++it;
     }
     std::cout << std::endl;
     return os;
+  }
+
+
+  int count_nodes() const {
+    const_iterator it = begin();
+    std::size_t i{0};
+    while (it != end()) {
+      i++;
+      it++;
+    }
+    return i;
   }
 
   
