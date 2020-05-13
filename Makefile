@@ -8,7 +8,7 @@ INC = include/bst.hpp
 all: $(EXE)
 
 %.o: %.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS) -g
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
 %.x: %.o
 	$(CXX) -o $@ $<

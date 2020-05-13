@@ -27,8 +27,8 @@ public:
   bst() noexcept = default; //default constructor
 
   // custom ctors
-  explicit bst(k key, v value) : root{std::make_unique<node_type>(pair_type(key, value))} {}  
-  explicit bst(k key, v value, cmp x) : root{std::make_unique<node_type>(pair_type(key, value))}, op{x} {}   
+  explicit bst(k key, v value) noexcept : root{std::make_unique<node_type>(pair_type(key, value))} {}  
+  explicit bst(k key, v value, cmp x) noexcept : root{std::make_unique<node_type>(pair_type(key, value))}, op{x} {}   
 
   //custom constructor that builds a tree from a vector of pairs
   explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1);
@@ -71,10 +71,10 @@ public:
   }
 
 
-  void clear() { root.reset(nullptr); }
+  void clear() noexcept { root.reset(nullptr); }
 
 
-  iterator begin() {
+  iterator begin() noexcept {
     if (root == nullptr)
       return iterator{nullptr};
     
@@ -85,7 +85,7 @@ public:
   }
   
   
-  const_iterator begin() const {
+  const_iterator begin() const noexcept {
     if (root == nullptr)
       return const_iterator{nullptr};
     
@@ -96,7 +96,7 @@ public:
   }
 
   
-  const_iterator cbegin() const {
+  const_iterator cbegin() const noexcept {
     if (root == nullptr)
       return const_iterator{nullptr};
     
@@ -107,13 +107,13 @@ public:
   }
 
 
-  iterator end() { return iterator{nullptr}; }
-  const_iterator end() const { return const_iterator{nullptr}; }
-  const_iterator cend() const { return const_iterator{nullptr}; }
+  iterator end() noexcept { return iterator{nullptr}; }
+  const_iterator end() const noexcept { return const_iterator{nullptr}; }
+  const_iterator cend() const noexcept { return const_iterator{nullptr}; }
 
   
-  iterator find(const k& x); 
-  const_iterator find(const k& x) const;
+  iterator find(const k& x) noexcept; 
+  const_iterator find(const k& x) const noexcept;
 
   
   void balance();
@@ -170,7 +170,7 @@ public:
   }
 
 
-  int count_nodes() const {
+  int count_nodes() const noexcept {
     const_iterator it = begin();
     std::size_t i{0};
     while (it != end()) {

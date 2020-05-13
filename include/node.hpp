@@ -15,8 +15,8 @@ struct Node{
   
   //constructors
   Node() noexcept = default;
-  Node(const T& v, Node* p=nullptr) : value{v}, parent{p} {}
-  Node(T&& v, Node* p=nullptr) : value{std::move(v)}, parent{p} {}
+  Node(const T& v, Node* p=nullptr) noexcept: value{v}, parent{p} {}
+  Node(T&& v, Node* p=nullptr) noexcept: value{std::move(v)}, parent{p} {}
 
 
   //destructor

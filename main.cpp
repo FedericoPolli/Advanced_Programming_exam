@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "bst.hpp"
 
 int main() {
@@ -13,7 +14,7 @@ int main() {
     std::cout << "\nReverse tree:\n";
     std::cout << r_tree;
     
-    std::vector<couple> v{ {2, 3.4}, {1, 6}, {7, 4.332}, {12, 1}, {3, 5}, {14, 1.22}, {0, -2}, {10, 0.003}, {5, 2}, {8, -0.55}, {4, 3.4}};
+    std::vector<couple> v{ {2, 3.4}, {1, 6}, {7, 4.332}, {12, 1}, {3, 5}, {14, 1.22}, {0, -2}, {10, 0.003}, {5, 2}, {8, -0.55}, {4, 3.4} };
     tree A{v};
     std::cout << "\nTree A initialised from vector, not balanced:\n";
     std::cout << A;
@@ -46,7 +47,7 @@ int main() {
     C.erase(5);
     std::cout << "\nErasing a node with children ( in this case (5,2) ) rebalances the tree \n";
     std::cout << C;
-
+    
   }
   catch(const std::exception e) {
     std::cerr << e.what() << std::endl;

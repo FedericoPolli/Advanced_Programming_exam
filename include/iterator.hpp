@@ -30,6 +30,14 @@ public:
   bool operator==(const _iterator& rhs) const {return current==rhs.current;}
   bool operator!=(const _iterator& rhs) const {return current!=rhs.current;}
 
+  //copy ctor
+  _iterator(const _iterator& it) : current{it.current}, op{it.op} {}
+
+  //copy assignment
+  _iterator& operator=(const _iterator& it) {
+    current = it.current;
+    return *this;
+  }
   
   /*
     prefix increment: 3 cases.
@@ -95,29 +103,29 @@ public:
   void move_right() noexcept { current = current->right.get(); }
 
   
-  bool has_left_child() {
+  bool has_left_child() const noexcept {
     if (current != nullptr && current->left.get() != nullptr)
       return true;
     return false;
   }
 
   
-  bool has_right_child() {
+  bool has_right_child() const noexcept {
     if (current != nullptr && current->right.get() != nullptr)
       return true;
     return false;
   }
 
 
-  node* get_ptr() noexcept {return current;}
+  node* get_ptr() const noexcept {return current;}
 
   
-  bool is_leaf() { return !( ((*this).has_left_child()) || ((*this).has_right_child()) ); }
+  bool is_leaf() const noexcept { return !( ((*this).has_left_child()) || ((*this).has_right_child()) ); }
 
 
   //These functions check whether the current node is respectively a left or right child of another node
   
-  bool is_left_child () {
+  bool is_left_child () const noexcept {
     _iterator it = *this;
     it.move_up();
     it.move_left();
@@ -128,7 +136,7 @@ public:
   }
 
   
-  bool is_right_child () {
+  bool is_right_child () const noexcept {
     _iterator it = *this;
     it.move_up();
     it.move_right();

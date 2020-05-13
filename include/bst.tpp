@@ -94,7 +94,7 @@ std::pair<typename bst<k,v,cmp>::iterator,bool> bst<k,v,cmp>::insert(bst<k,v,cmp
 */
 
 template<typename k, typename v, typename cmp>
-typename bst<k,v,cmp>::iterator bst<k,v,cmp>::find(const k& x) {
+typename bst<k,v,cmp>::iterator bst<k,v,cmp>::find(const k& x) noexcept {
   if (root == nullptr)
     return iterator{nullptr};
   iterator it = begin();
@@ -110,7 +110,7 @@ typename bst<k,v,cmp>::iterator bst<k,v,cmp>::find(const k& x) {
 //Overloaded find which returns a const_iterator
 
 template<typename k, typename v, typename cmp>
-typename bst<k,v,cmp>::const_iterator bst<k,v,cmp>::find(const k& x) const {
+typename bst<k,v,cmp>::const_iterator bst<k,v,cmp>::find(const k& x) const noexcept {
   if (root == nullptr)
     return const_iterator{nullptr};
   const_iterator it = begin();
@@ -119,7 +119,6 @@ typename bst<k,v,cmp>::const_iterator bst<k,v,cmp>::find(const k& x) const {
       return it;
     ++it;
   }
-  std::cout << "not found\n";
   return end();
 }
 
