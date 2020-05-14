@@ -11,3 +11,4 @@ In this project I have implemented a binary search tree through the use of three
 * main.cpp is the source file used to test and verify the correctness of the above-mentioned functions and classes.
 * Makefile produces the executable main.x.
 * Report.pdf is a general report about the bst implementation.
+* Benchmark.cpp is used to test the efficiency of the implementation against std::map
