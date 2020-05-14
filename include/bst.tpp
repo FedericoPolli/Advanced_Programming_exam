@@ -97,11 +97,19 @@ template<typename k, typename v, typename cmp>
 typename bst<k,v,cmp>::iterator bst<k,v,cmp>::find(const k& x) noexcept {
   if (root == nullptr)
     return iterator{nullptr};
-  iterator it = begin();
-  while(it != end()) {
+  iterator it{root.get()};
+  if (it->first == x)
+      return it;
+      
+  while (!it.is_leaf()) {
+    if (op(x, it->first) && it.has_left_child() )
+      it.move_left();
+    else if (op(it->first, x) && it.has_right_child() )
+      it.move_right();
+    else
+      break;
     if (it->first == x)
       return it;
-    ++it;
   }
   return end();
 }
@@ -113,11 +121,19 @@ template<typename k, typename v, typename cmp>
 typename bst<k,v,cmp>::const_iterator bst<k,v,cmp>::find(const k& x) const noexcept {
   if (root == nullptr)
     return const_iterator{nullptr};
-  const_iterator it = begin();
-  while(it != end()) {
+  iterator it{root.get()};
+  if (it->first == x)
+      return it;
+  
+  while (!it.is_leaf()) {
+    if (op(x, it->first) && it.has_left_child() )
+      it.move_left();
+    else if (op(it->first, x) && it.has_right_child() )
+      it.move_right();
+    else
+      break;
     if (it->first == x)
       return it;
-    ++it;
   }
   return end();
 }
@@ -204,7 +220,6 @@ void bst<k,v,cmp>::erase(const k& x) {
       (*node_ptr).parent->left.reset();	
     else
       (*node_ptr).parent->right.reset();
-    node_ptr = nullptr;
     return;
   }
 

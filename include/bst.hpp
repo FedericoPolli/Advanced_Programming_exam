@@ -5,6 +5,7 @@
 #include <iterator>  // already included in iterator.hpp
 
 #include <algorithm>  //std::sort
+#include <numeric> //std::iota
 #include <iostream>
 #include <vector>
 #include "node.hpp"
@@ -31,8 +32,7 @@ public:
   explicit bst(k key, v value, cmp x) noexcept : root{std::make_unique<node_type>(pair_type(key, value))}, op{x} {}   
 
   //custom constructor that builds a tree from a vector of pairs
-  explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1);
-  }
+  explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1); }
   
   ~bst() noexcept = default; // default dtor
 
@@ -145,9 +145,6 @@ public:
 
   
   void erase(const k& x);
-  
-
-  const_iterator get_root() const noexcept { return const_iterator{root.get()}; }
 
     
   friend
@@ -168,6 +165,9 @@ public:
     std::cout << std::endl;
     return os;
   }
+    
+
+  const_iterator get_root() const noexcept { return const_iterator{root.get()}; }
 
 
   int count_nodes() const noexcept {
