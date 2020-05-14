@@ -90,7 +90,9 @@ std::pair<typename bst<k,v,cmp>::iterator,bool> bst<k,v,cmp>::insert(bst<k,v,cmp
 /*
   Finds a given key in the tree, and returns an iterator to the associated node. 
   If the key is not found returns an iterator pointing to the end of the tree.
-  The function simply traverses the tree and if the key is found it returns.
+  The function starts from the root node and moves down by comparing
+  the current node’s key with the given one. It stops if the key is found,
+  otherwise it returns end().
 */
 
 template<typename k, typename v, typename cmp>
@@ -121,7 +123,7 @@ template<typename k, typename v, typename cmp>
 typename bst<k,v,cmp>::const_iterator bst<k,v,cmp>::find(const k& x) const noexcept {
   if (root == nullptr)
     return const_iterator{nullptr};
-  iterator it{root.get()};
+  const_iterator it{root.get()};
   if (it->first == x)
       return it;
   
@@ -142,7 +144,7 @@ typename bst<k,v,cmp>::const_iterator bst<k,v,cmp>::find(const k& x) const noexc
 
 
 /*
-  Balances the tree. It copies the tree in a vector of pairs,
+  Balances the tree. It copies the tree in an ordered vector of pairs,
   then it clears the tree and rebuilds it from said vector in a balacned way.
 */
 
@@ -171,11 +173,12 @@ void bst<k,v,cmp>::balance()  {
 
 /*
   Recursively builds a balanced tree by finding the median element
-  and then calls itself on the left and right halves.
+  and then calling itself on the left and right halves.
 */
 
 template <typename k, typename v, typename cmp>
 void bst<k,v,cmp>::build_from_vector(const std::vector<std::pair<const k, v>> vec, std::size_t start, std::size_t end)  {
+  
   //stopping condition
   if (start > end)
     return;

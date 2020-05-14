@@ -6,8 +6,9 @@ int main() {
   try{
     using tree = bst<int, double>;
     using couple = std::pair<const int, double>;
-    //testing
     
+    //testing
+
     bst<int, double, std::greater<int>> r_tree(2,2);  //custom ctor with different order
     r_tree.emplace(3,3);
     r_tree.insert({1,1});

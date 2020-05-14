@@ -7,6 +7,7 @@
 
 template <typename T>
 struct Node{
+  
   T value;
   std::unique_ptr<Node> left=nullptr;
   std::unique_ptr<Node> right=nullptr;

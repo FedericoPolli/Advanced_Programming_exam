@@ -4,8 +4,6 @@
 #include <memory>    // included for clarity, as they are
 #include <iterator>  // already included in iterator.hpp
 
-#include <algorithm>  //std::sort
-#include <numeric> //std::iota
 #include <iostream>
 #include <vector>
 #include "node.hpp"
@@ -126,7 +124,7 @@ public:
     auto it = find(x);
     if ( it == end() ) {
       auto p = insert(std::make_pair(x, v{}));  //if key is not found, perform an 
-      return (*p.first).second;                 //insertion with default value
+      return (*p.first).second;                 //insertion with defaulted value
     }
     else
       return (*it).second; 
@@ -136,8 +134,8 @@ public:
   v& operator[](k&& x) {
     auto it = find(x);
     if ( it == end() ) {
-      auto p = insert(std::make_pair(std::move(x), v{})); //if key is not found, perform 
-      return (*p.first).second;                          //an insertion with default value
+      auto p = insert(std::make_pair(std::move(x), v{})); //if key is not found, perform an 
+      return (*p.first).second;                           //insertion with defaulted value
     }
     else
       return (*it).second; 

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
   auto bt_map=std::chrono::high_resolution_clock::now();
   std::map<int, double> std_map;
   for (std::size_t i=0; i<size; i++)
-    std_map.emplace(v_int[i], v_d[i]);
+    std_map.insert({v_int[i], v_d[i]});
   auto b_elapsed_map = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now()-bt_map);
 
   
