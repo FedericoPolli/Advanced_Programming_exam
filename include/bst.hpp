@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "node.hpp"
 #include "iterator.hpp"
 
@@ -30,7 +31,10 @@ public:
   explicit bst(k key, v value, cmp x) noexcept : root{std::make_unique<node_type>(pair_type(key, value))}, op{x} {}   
 
   //custom constructor that builds a tree from a vector of pairs
-  explicit bst(std::vector<pair_type> vec) { build_from_vector(vec, 0, vec.size()-1); }
+  explicit bst(std::vector<pair_type> vec) {
+    std::sort(vec.begin(), vec.end());
+    build_from_vector(vec, 0, vec.size()-1);
+  }
   
   ~bst() noexcept = default; // default dtor
 
